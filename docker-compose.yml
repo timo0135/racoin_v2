@@ -18,5 +18,11 @@ services:
             MARIADB_PASSWORD: password
         volumes:
             - db-data:/var/lib/mysql
+    node:
+        image: node:20-alpine
+        volumes:
+            - .:/app
+        working_dir: /app
+        command: npm run dev
 volumes:
     db-data:

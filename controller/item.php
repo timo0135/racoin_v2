@@ -1,16 +1,18 @@
 <?php
 
 namespace controller;
+use AllowDynamicProperties;
 use model\Annonce;
 use model\Annonceur;
 use model\Departement;
 use model\Photo;
 use model\Categorie;
 
-class item {
+#[AllowDynamicProperties] class item {
     public function __construct(){
     }
-    function afficherItem($twig, $menu, $chemin, $n, $cat) {
+    function afficherItem($twig, $menu, $chemin, $n, $cat): void
+    {
 
         $this->annonce = Annonce::find($n);
         if(!isset($this->annonce)){
@@ -22,7 +24,7 @@ class item {
             array('href' => $chemin,
                 'text' => 'Acceuil'),
             array('href' => $chemin."/cat/".$n,
-                'text' => Categorie::find($this->annonce->id_categorie)->nom_categorie),
+                'text' => Categorie::find($this->annonce->id_categorie)?->nom_categorie),
             array('href' => $chemin."/item/".$n,
             'text' => $this->annonce->titre)
         );

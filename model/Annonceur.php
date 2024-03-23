@@ -12,5 +12,3 @@ class Annonceur extends \Illuminate\Database\Eloquent\Model {
         return $this->hasMany('model\Annonce', 'id_annonceur');
     }
 }
-
-?>

@@ -16,3 +16,6 @@ vendor/
 ### Database ###
 config/config.ini
 config/db.ini
+
+
+node_modules
