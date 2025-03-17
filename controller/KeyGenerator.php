@@ -3,10 +3,11 @@
 namespace controller;
 
 use model\ApiKey;
+use Twig\Environment;
 
 class KeyGenerator {
 
-    private function renderTemplate($twig, $templateName, $chemin, $categories, $additionalParams = []) {
+    private function renderTemplate(Environment $twig, string $templateName, string $chemin, array $categories, array $additionalParams = []): void {
         $template = $twig->load($templateName);
         $breadcrumb = [
             ['href' => $chemin, 'text' => 'Accueil'],
@@ -16,11 +17,11 @@ class KeyGenerator {
         echo $template->render($params);
     }
 
-    function show($twig, $chemin, $categories) {
+    public function show(Environment $twig, string $chemin, array $categories): void {
         $this->renderTemplate($twig, "key-generator.html.twig", $chemin, $categories);
     }
 
-    function generateKey($twig, $chemin, $categories, $name) {
+    public function generateKey(Environment $twig, string $chemin, array $categories, string $name): void {
         $trimmedName = str_replace(' ', '', $name);
 
         if ($trimmedName === '') {

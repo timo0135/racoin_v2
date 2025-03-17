@@ -5,12 +5,13 @@ namespace controller;
 use model\Annonce;
 use model\Photo;
 use model\Annonceur;
+use Twig\Environment;
 
 class IndexController
 {
-    protected $annonces = [];
+    protected array $annonces = [];
 
-    public function displayAllAnnonces($twig, $menu, $chemin, $categories)
+    public function displayAllAnnonces(Environment $twig, array $menu, string $chemin, array $categories): void
     {
         $template = $twig->load("index.html.twig");
         $menu = [
@@ -29,7 +30,7 @@ class IndexController
         ]);
     }
 
-    public function loadAllAnnonces($chemin)
+    public function loadAllAnnonces(string $chemin): void
     {
         $annonces = Annonce::with("Annonceur")->orderBy('id_annonce', 'desc')->take(12)->get();
         foreach ($annonces as $annonce) {

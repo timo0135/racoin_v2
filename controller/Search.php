@@ -4,24 +4,25 @@ namespace controller;
 
 use model\Annonce;
 use model\Categorie;
+use Twig\Environment;
 
 class Search {
 
-    function show($twig, $menu, $path, $categories) {
+    function show(Environment $twig, array $menu, string $path, array $categories): void {
         $template = $twig->load("search.html.twig");
-        $breadcrumb = array(
-            array('href' => $path, 'text' => 'Accueil'),
-            array('href' => $path."/search", 'text' => "Recherche")
-        );
-        echo $template->render(array("breadcrumb" => $breadcrumb, "chemin" => $path, "categories" => $categories));
+        $breadcrumb = [
+            ['href' => $path, 'text' => 'Accueil'],
+            ['href' => $path."/search", 'text' => "Recherche"]
+        ];
+        echo $template->render(["breadcrumb" => $breadcrumb, "chemin" => $path, "categories" => $categories]);
     }
 
-    function research($params, $twig, $menu, $path, $categories) {
+    function research(array $params, Environment $twig, array $menu, string $path, array $categories): void {
         $template = $twig->load("index.html.twig");
-        $breadcrumb = array(
-            array('href' => $path, 'text' => 'Accueil'),
-            array('href' => $path."/search", 'text' => "Résultats de la recherche")
-        );
+        $breadcrumb = [
+            ['href' => $path, 'text' => 'Accueil'],
+            ['href' => $path."/search", 'text' => "Résultats de la recherche"]
+        ];
 
         $keyword = str_replace(' ', '', $params['motclef']);
         $postalCode = str_replace(' ', '', $params['codepostal']);
@@ -52,7 +53,7 @@ class Search {
 
             if ($params['prix-min'] !== "Min" && $params['prix-max'] !== "Max") {
                 if ($params['prix-max'] !== "nolimit") {
-                    $query->whereBetween('prix', array($params['prix-min'], $params['prix-max']));
+                    $query->whereBetween('prix', [$params['prix-min'], $params['prix-max']]);
                 } else {
                     $query->where('prix', '>=', $params['prix-min']);
                 }
@@ -65,7 +66,7 @@ class Search {
             $annonces = $query->get();
         }
 
-        echo $template->render(array("breadcrumb" => $breadcrumb, "chemin" => $path, "annonces" => $annonces, "categories" => $categories));
+        echo $template->render(["breadcrumb" => $breadcrumb, "chemin" => $path, "annonces" => $annonces, "categories" => $categories]);
     }
 
 }

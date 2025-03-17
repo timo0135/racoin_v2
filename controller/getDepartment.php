@@ -6,9 +6,9 @@ use model\Departement;
 
 class DepartmentController {
 
-    protected $departments = [];
+    protected array $departments = [];
 
-    public function getAllDepartments() {
+    public function getAllDepartments(): array {
         return Departement::orderBy('nom_departement')->get()->toArray();
     }
 }

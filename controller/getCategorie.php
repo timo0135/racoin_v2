@@ -6,16 +6,17 @@ use model\Categorie;
 use model\Annonce;
 use model\Photo;
 use model\Annonceur;
+use Twig\Environment;
 
 class CategorieController {
 
-    protected $annonces = [];
+    protected array $annonces = [];
 
-    public function getCategories() {
+    public function getCategories(): array {
         return Categorie::orderBy('nom_categorie')->get()->toArray();
     }
 
-    public function getCategorieContent($chemin, $categorieId) {
+    public function getCategorieContent(string $chemin, int $categorieId): void {
         $annonces = Annonce::with("Annonceur")
             ->orderBy('id_annonce', 'desc')
             ->where('id_categorie', $categorieId)
@@ -32,7 +33,7 @@ class CategorieController {
         $this->annonces = $annonces;
     }
 
-    public function displayCategorie($twig, $chemin, $categorieId) {
+    public function displayCategorie(Environment $twig, string $chemin, int $categorieId): void {
         $template = $twig->load("index.html.twig");
         $breadcrumb = [
             ['href' => $chemin, 'text' => 'Accueil'],

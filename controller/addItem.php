@@ -4,10 +4,11 @@ namespace controller;
 
 use model\Annonce;
 use model\Annonceur;
+use Twig\Environment;
 
 class addItem
 {
-    function addItemView($twig, $menu, $chemin, $categories, $departements)
+    public function addItemView(Environment $twig, array $menu, string $chemin, array $categories, array $departements): void
     {
         $template = $twig->load("add.html.twig");
         echo $template->render([
@@ -18,12 +19,12 @@ class addItem
         ]);
     }
 
-    private function isEmail($email)
+    private function isEmail(string $email): bool
     {
         return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
     }
 
-    function addNewItem($twig, $menu, $chemin, $allPostVars)
+    public function addNewItem(Environment $twig, array $menu, string $chemin, array $allPostVars): void
     {
         date_default_timezone_set('Europe/Paris');
 
@@ -63,12 +64,12 @@ class addItem
 
             $annonce = new Annonce();
             $annonce->ville = htmlentities($allPostVars['ville']);
-            $annonce->id_departement = $allPostVars['departement'];
+            $annonce->id_departement = (int)$allPostVars['departement'];
             $annonce->prix = htmlentities($allPostVars['price']);
             $annonce->mdp = password_hash($allPostVars['psw'], PASSWORD_DEFAULT);
             $annonce->titre = htmlentities($allPostVars['title']);
             $annonce->description = htmlentities($allPostVars['description']);
-            $annonce->id_categorie = $allPostVars['categorie'];
+            $annonce->id_categorie = (int)$allPostVars['categorie'];
             $annonce->date = date('Y-m-d');
 
             $annonceur->save();

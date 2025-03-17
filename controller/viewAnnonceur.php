@@ -11,12 +11,13 @@ namespace controller;
 use model\Annonce;
 use model\Annonceur;
 use model\Photo;
+use Twig\Environment;
 
 class ViewAnnonceur {
     public function __construct() {
     }
 
-    public function afficherAnnonceur($twig, $menu, $chemin, $annonceurId, $categories) {
+    public function afficherAnnonceur(Environment $twig, array $menu, string $chemin, int $annonceurId, array $categories): void {
         $annonceur = Annonceur::find($annonceurId);
         if (!$annonceur) {
             echo "404";
