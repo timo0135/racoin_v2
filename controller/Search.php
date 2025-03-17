@@ -7,71 +7,65 @@ use model\Categorie;
 
 class Search {
 
-    function show($twig, $menu, $chemin, $cat) {
+    function show($twig, $menu, $path, $categories) {
         $template = $twig->load("search.html.twig");
-        $menu = array(
-            array('href' => $chemin,
-                'text' => 'Acceuil'),
-            array('href' => $chemin."/search",
-                'text' => "Recherche")
+        $breadcrumb = array(
+            array('href' => $path, 'text' => 'Accueil'),
+            array('href' => $path."/search", 'text' => "Recherche")
         );
-        echo $template->render(array("breadcrumb" => $menu, "chemin" => $chemin, "categories" => $cat));
+        echo $template->render(array("breadcrumb" => $breadcrumb, "chemin" => $path, "categories" => $categories));
     }
 
-    function research($array, $twig, $menu, $chemin, $cat) {
+    function research($params, $twig, $menu, $path, $categories) {
         $template = $twig->load("index.html.twig");
-        $menu = array(
-            array('href' => $chemin,
-                'text' => 'Acceuil'),
-            array('href' => $chemin."/search",
-                'text' => "Résultats de la recherche")
+        $breadcrumb = array(
+            array('href' => $path, 'text' => 'Accueil'),
+            array('href' => $path."/search", 'text' => "Résultats de la recherche")
         );
 
-        $nospace_mc = str_replace(' ', '', $array['motclef']);
-        $nospace_cp = str_replace(' ', '', $array['codepostal']);
-
+        $keyword = str_replace(' ', '', $params['motclef']);
+        $postalCode = str_replace(' ', '', $params['codepostal']);
 
         $query = Annonce::select();
 
-        if( ($nospace_mc === "") &&
-            ($nospace_cp === "") &&
-            (($array['categorie'] === "Toutes catégories" || $array['categorie'] === "-----")) &&
-            ($array['prix-min'] === "Min") &&
-            ( ($array['prix-max'] === "Max") || ($array['prix-max'] === "nolimit") ) ) {
-            $annonce = Annonce::all();
-
+        if (empty($keyword) && empty($postalCode) && 
+            ($params['categorie'] === "Toutes catégories" || $params['categorie'] === "-----") &&
+            $params['prix-min'] === "Min" && 
+            ($params['prix-max'] === "Max" || $params['prix-max'] === "nolimit")) {
+            $annonces = Annonce::all();
         } else {
-            // A REFAIRE SEPARER LES TRUCS
-            if( ($nospace_mc !== "") ) {
-                $query->where('description', 'like', '%'.$array['motclef'].'%');
+            if (!empty($keyword)) {
+                $query->where('description', 'like', '%'.$params['motclef'].'%');
             }
 
-            if( ($nospace_cp !== "") ) {
-                $query->where('ville', '=', $array['codepostal']);
+            if (!empty($postalCode)) {
+                $query->where('ville', '=', $params['codepostal']);
             }
 
-            if ( ($array['categorie'] !== "Toutes catégories" && $array['categorie'] !== "-----") ) {
-                $categ = Categorie::select('id_categorie')->where('id_categorie', '=', $array['categorie'])->first()->id_categorie;
-                $query->where('id_categorie', '=', $categ);
+            if ($params['categorie'] !== "Toutes catégories" && $params['categorie'] !== "-----") {
+                $categoryId = Categorie::select('id_categorie')
+                    ->where('id_categorie', '=', $params['categorie'])
+                    ->first()
+                    ->id_categorie;
+                $query->where('id_categorie', '=', $categoryId);
             }
 
-            if ( $array['prix-min'] !== "Min" && $array['prix-max'] !== "Max") {
-                if($array['prix-max'] !== "nolimit") {
-                    $query->whereBetween('prix', array($array['prix-min'], $array['prix-max']));
+            if ($params['prix-min'] !== "Min" && $params['prix-max'] !== "Max") {
+                if ($params['prix-max'] !== "nolimit") {
+                    $query->whereBetween('prix', array($params['prix-min'], $params['prix-max']));
                 } else {
-                    $query->where('prix', '>=', $array['prix-min']);
+                    $query->where('prix', '>=', $params['prix-min']);
                 }
-            } elseif ( $array['prix-max'] !== "Max" && $array['prix-max'] !== "nolimit") {
-                $query->where('prix', '<=', $array['prix-max']);
-            } elseif ( $array['prix-min'] !== "Min" ) {
-                $query->where('prix', '>=', $array['prix-min']);
+            } elseif ($params['prix-max'] !== "Max" && $params['prix-max'] !== "nolimit") {
+                $query->where('prix', '<=', $params['prix-max']);
+            } elseif ($params['prix-min'] !== "Min") {
+                $query->where('prix', '>=', $params['prix-min']);
             }
 
-            $annonce = $query->get();
+            $annonces = $query->get();
         }
 
-        echo $template->render(array("breadcrumb" => $menu, "chemin" => $chemin, "annonces" => $annonce, "categories" => $cat));
-
+        echo $template->render(array("breadcrumb" => $breadcrumb, "chemin" => $path, "annonces" => $annonces, "categories" => $categories));
     }
 
 }

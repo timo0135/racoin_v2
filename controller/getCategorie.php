@@ -7,48 +7,46 @@ use model\Annonce;
 use model\Photo;
 use model\Annonceur;
 
-class getCategorie {
+class CategorieController {
 
-    protected $categories = array();
+    protected $annonces = [];
 
     public function getCategories() {
         return Categorie::orderBy('nom_categorie')->get()->toArray();
     }
 
-    public function getCategorieContent($chemin, $n) {
-        $tmp = Annonce::with("Annonceur")->orderBy('id_annonce','desc')->where('id_categorie', "=", $n)->get();
-        $annonce = [];
-        foreach($tmp as $t) {
-            $t->nb_photo = Photo::where("id_annonce", "=", $t->id_annonce)->count();
-            if($t->nb_photo > 0){
-                $t->url_photo = Photo::select("url_photo")
-                    ->where("id_annonce", "=", $t->id_annonce)
-                    ->first()->url_photo;
-            }else{
-                $t->url_photo = $chemin.'/img/noimg.png';
-            }
-            $t->nom_annonceur = Annonceur::select("nom_annonceur")
-                ->where("id_annonceur", "=", $t->id_annonceur)
-                ->first()->nom_annonceur;
-            array_push($annonce, $t);
+    public function getCategorieContent($chemin, $categorieId) {
+        $annonces = Annonce::with("Annonceur")
+            ->orderBy('id_annonce', 'desc')
+            ->where('id_categorie', $categorieId)
+            ->get();
+
+        foreach ($annonces as $annonce) {
+            $annonce->nb_photo = Photo::where("id_annonce", $annonce->id_annonce)->count();
+            $annonce->url_photo = $annonce->nb_photo > 0 
+                ? Photo::where("id_annonce", $annonce->id_annonce)->first()->url_photo 
+                : $chemin . '/img/noimg.png';
+            $annonce->nom_annonceur = Annonceur::where("id_annonceur", $annonce->id_annonceur)->first()->nom_annonceur;
         }
-        $this->annonce = $annonce;
+
+        $this->annonces = $annonces;
     }
 
-    public function displayCategorie($twig, $menu, $chemin, $cat, $n) {
+    public function displayCategorie($twig, $chemin, $categorieId) {
         $template = $twig->load("index.html.twig");
-        $menu = array(
-            array('href' => $chemin,
-                'text' => 'Acceuil'),
-            array('href' => $chemin."/cat/".$n,
-                'text' => Categorie::find($n)->nom_categorie)
-        );
+        $breadcrumb = [
+            ['href' => $chemin, 'text' => 'Accueil'],
+            ['href' => $chemin . "/cat/" . $categorieId, 'text' => Categorie::find($categorieId)->nom_categorie]
+        ];
 
-        $this->getCategorieContent($chemin, $n);
-        echo $template->render(array(
-            "breadcrumb" => $menu,
+        $categories = $this->getCategories();
+        $this->getCategorieContent($chemin, $categorieId);
+
+        echo $template->render([
+            "breadcrumb" => $breadcrumb,
             "chemin" => $chemin,
-            "categories" => $cat,
-            "annonces" => $this->annonce));
+            "categories" => $categories,
+            "annonces" => $this->annonces
+        ]);
     }
 }
